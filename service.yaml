@@ -3,7 +3,7 @@ name: analyser
 author: ambra
 source: github.com/ambra19/analyser.git
 version: 0.0.1
-description: A template service in Python
+description: Subscriber service that receives input from the energy service
 
 # The alias "as: controller" allows this service to be recognized as "controller"
 # by other components (like the actuator), even if its actual name is different.
@@ -17,7 +17,7 @@ commands:
 inputs:
   - service: energy
     streams:
-      - path
+      - energy
 outputs:
   - decision
 

@@ -5,6 +5,8 @@ import signal
 from loguru import logger
 import roverlib
 import roverlib.rovercom as rovercom
+import logging
+from datetime import datetime
 
 # The main user space program
 # this program has all you need from roverlib: service identity, reading, writing and configuration
@@ -21,84 +23,61 @@ def run(service : roverlib.Service, configuration : roverlib.ServiceConfiguratio
     logger.info(f"Hello World, a new Python service {service.name} was born at version {service.version}")
 
     #
-    # Access the service configuration, to use runtime parameters
-    #
-    tunable_speed = configuration.GetFloatSafe("speed")
-    if tunable_speed is None:
-        raise ValueError("Failed to get configuration")
-    logger.info(f"Fetched runtime configuration example tunable number: {tunable_speed}")
-
-
-    #
     # Reading from an input, to get data from other services (see service.yaml to understand the input name)
     #
-    read_stream : roverlib.ReadStream = service.GetReadStream("imaging", "path")
+    read_stream : roverlib.ReadStream = service.GetReadStream("energy", "energy")
     if read_stream is None:
         raise ValueError("Failed to get read stream")
-    
-    #
-    # Writing to an output that other services can read (see service.yaml to understand the output name)
-    #
-    write_stream : roverlib.WriteStream = service.GetWriteStream("decision")
-    if write_stream is None:
-        raise ValueError("Failed to create write stream 'decision'")
-
     while True:
-        #
-        # Reading one message from the stream
-        #
         data = read_stream.Read()
         if data is None:
-            raise ValueError("Failed to read from 'imaging' service")
+            raise ValueError("Failed to read from 'energy' service")
+
+        energy_data = data.energy_output
+        if energy_data is None:
+            return ValueError("Message does not contain energy output. What did energy do??")
+            
+        # ct = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # logger.info(f"Timestamp: [current time: {ct}] {energy_data}")
+        # time = datetime.fromtimestamp(data.timestamp / 1000.0).strftime("%Y-%m-%d %H:%M:%S")
+        logger.info(f"[{data.timestamp}]{energy_data}")
+        # ts_readable = datetime.fromtimestamp(data.timestamp / 1000.0).strftime("%Y-%m-%d %H:%M:%S")
+
+        # logger.info(
+        #     f"[{ts_readable}] "
+        #     f"V: {energy_data.supply_voltage:.2f} V | "
+        #     f"I: {energy_data.current_amps:.3f} A | "
+        #     f"P: {energy_data.power_watts:.2f} W"
+        # )
+
+    
+    
+    # WRITING TO AN OUTPUT STREAM -- NOT USED FOR NOW -- Check the template for the example
+
+    # Writing to an output that other services can read (see service.yaml to understand the output name)
+    #
+    # write_stream : roverlib.WriteStream = service.GetWriteStream("decision")
+    # if write_stream is None:
+    #     raise ValueError("Failed to create write stream 'decision'")
+
+    # while True:
+    #     #
+    #     # Reading one message from the stream
+    #     #
+    #     data = read_stream.Read()
+    #     if data is None:
+    #         raise ValueError("Failed to read from 'energy' service")
         
-        # When did the imaging service create this message
-        created_at = data.timestamp
-        logger.info(f"Received message with timestamp: {created_at}")
+    #     # When did the imaging service create this message
+    #     created_at = data.timestamp
+    #     logger.info(f"Received message with timestamp: {created_at}")
 
         # Get the imaging data
-        imaging_data = data.camera_output
-        if imaging_data is None:
-            return ValueError("Message does not contain camera output. What did imaging do??")
+        # imaging_data = data.camera_output
+        # if imaging_data is None:
+        #     return ValueError("Message does not contain camera output. What did imaging do??")
 
-        logger.info(f"Imaging service captured a {imaging_data.trajectory.width} by {imaging_data.trajectory.height} image")
-
-        
-        # If the imaging has detected any track pieces, the print the X and Y coordinates of 
-        # the middle point of the track.
-        if len(imaging_data.trajectory.points) > 0:
-            logger.info(f"The X: {imaging_data.trajectory.points[0].x} and Y: {imaging_data.trajectory.points[0].y} values of the middle point of the track")
-
-        # This value holds the steering position that we want to pass to the servo (-1 = left, 0 = center, 1 = right)
-        steer_position = -0.5
-
-        write_stream.Write(rovercom.SensorOutput(
-            sensor_id=1,
-            timestamp=int(time.time() * 1000),
-            controller_output=rovercom.ControllerOutput(
-                steering_angle = steer_position,
-                left_throttle = tunable_speed,
-                right_throttle = tunable_speed,
-            )
-        ))
-
-        #
-		# Now do something else fun, see if our "tunable_speed" is updated
-		#
-        logger.info("Checking for tunable number update")
-
-        curr = tunable_speed
-
-        # We are not using the safe version here, because using locks is boring
-		# (this is perfectly fine if you are constantly polling the value)
-		# nb: this is not a blocking call, it will return the last known value
-        new_val = configuration.GetFloat("speed")
-        if new_val is None:
-            raise ValueError("Failed to get updated tunable number")
-        if new_val != curr:
-            logger.info(f"Tunable number updated: {curr} -> {new_val}")
-            curr = new_val
-        tunable_speed = curr
-
+        # logger.info(f"Imaging service captured a {imaging_data.trajectory.width} by {imaging_data.trajectory.height} image"
         
 
 
