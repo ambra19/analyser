@@ -2,7 +2,7 @@
 name: analyser
 author: ambra
 source: github.com/ambra19/analyser.git
-version: 0.0.1
+version: 0.0.2
 description: Subscriber service that receives input from the energy service
 
 # The alias "as: controller" allows this service to be recognized as "controller"

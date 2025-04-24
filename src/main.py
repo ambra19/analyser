@@ -6,7 +6,7 @@ from loguru import logger
 import roverlib
 import roverlib.rovercom as rovercom
 import logging
-from datetime import datetime
+import datetime
 
 # The main user space program
 # this program has all you need from roverlib: service identity, reading, writing and configuration
@@ -36,20 +36,11 @@ def run(service : roverlib.Service, configuration : roverlib.ServiceConfiguratio
         energy_data = data.energy_output
         if energy_data is None:
             return ValueError("Message does not contain energy output. What did energy do??")
-            
-        # ct = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        # logger.info(f"Timestamp: [current time: {ct}] {energy_data}")
-        # time = datetime.fromtimestamp(data.timestamp / 1000.0).strftime("%Y-%m-%d %H:%M:%S")
-        logger.info(f"[{data.timestamp}]{energy_data}")
-        # ts_readable = datetime.fromtimestamp(data.timestamp / 1000.0).strftime("%Y-%m-%d %H:%M:%S")
-
-        # logger.info(
-        #     f"[{ts_readable}] "
-        #     f"V: {energy_data.supply_voltage:.2f} V | "
-        #     f"I: {energy_data.current_amps:.3f} A | "
-        #     f"P: {energy_data.power_watts:.2f} W"
-        # )
-
+        
+        ts = data.timestamp
+        # logger.info(f"Just ts")
+        time = datetime.datetime.fromtimestamp(ts / 1000.0).strftime('%H:%M:%S')
+        logger.info(f"[{time}] {energy_data}")
     
     
     # WRITING TO AN OUTPUT STREAM -- NOT USED FOR NOW -- Check the template for the example
