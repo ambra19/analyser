@@ -38,10 +38,10 @@ def run(service : roverlib.Service, configuration : roverlib.ServiceConfiguratio
         #     return ValueError("Message does not contain energy output. What did energy do??")
         
         logger.info("Len of data / bytes", len(data))
-        
-        ts = data.timestamp
-        time = datetime.datetime.fromtimestamp(ts / 1000.0).strftime('%H:%M:%S')
-        logger.info(f"[{time}] {energy_data}")
+
+        # ts = data.timestamp
+        # time = datetime.datetime.fromtimestamp(ts / 1000.0).strftime('%H:%M:%S')
+        # logger.info(f"[{time}] {energy_data}")
     
     
     # WRITING TO AN OUTPUT STREAM -- NOT USED FOR NOW -- Check the template for the example
