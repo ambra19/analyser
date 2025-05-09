@@ -29,16 +29,17 @@ def run(service : roverlib.Service, configuration : roverlib.ServiceConfiguratio
     if read_stream is None:
         raise ValueError("Failed to get read stream")
     while True:
-        data = read_stream.Read()
+        data = read_stream.ReadBytes()
         if data is None:
             raise ValueError("Failed to read from 'energy' service")
 
-        energy_data = data.energy_output
-        if energy_data is None:
-            return ValueError("Message does not contain energy output. What did energy do??")
+        # energy_data = data.energy_output
+        # if energy_data is None:
+        #     return ValueError("Message does not contain energy output. What did energy do??")
+        
+        logger.info("Len of data / bytes", len(data))
         
         ts = data.timestamp
-        # logger.info(f"Just ts")
         time = datetime.datetime.fromtimestamp(ts / 1000.0).strftime('%H:%M:%S')
         logger.info(f"[{time}] {energy_data}")
     
